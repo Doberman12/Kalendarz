@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Kalendarz
 {
@@ -17,18 +18,18 @@ namespace Kalendarz
         private DateTime _currentDate;
         private DateTime? _selectedDate = null;
 
-        // Słownik do przechowywania zadań przypisanych do konkretnych dat
-        private Dictionary<DateTime, List<string>> _tasks = new();
-
+        
+        private TasksContext _context = new TasksContext();
+        
         public MainWindow()
         {
             InitializeComponent();
-
+            _context.Database.EnsureCreated();
             _settings = Settings.Load();
             CityInput.Text = _settings.City;
             LoadWeather(_settings.City);
             _selectedDate = DateTime.Today;
-            _tasks = TaskStorage.Load();
+            
             _currentDate = DateTime.Today;
             
             GenerateCalendar(_currentDate);
@@ -42,7 +43,11 @@ namespace Kalendarz
             CalendarGrid.Children.Clear();
             CalendarGrid.RowDefinitions.Clear();
             CalendarGrid.ColumnDefinitions.Clear();
-
+            var taskDates = _context.Tasks
+                .Where(t => t.Date.Month == date.Month && t.Date.Year == date.Year)
+                .Select(t => t.Date.Date)
+                .Distinct()
+                .ToHashSet();
             for (int i = 0; i < 7; i++)
             {
                 CalendarGrid.ColumnDefinitions.Add(new ColumnDefinition());
@@ -119,7 +124,7 @@ namespace Kalendarz
                 };
                 dayStack.Children.Add(dayText);
 
-                if (_tasks.ContainsKey(currentDay.Date) && _tasks[currentDay.Date].Count > 0)
+                if (taskDates.Contains(currentDay.Date))
                 {
                     var dot = new Ellipse
                     {
@@ -158,10 +163,16 @@ namespace Kalendarz
         {
             TaskList.Items.Clear();
 
-            if (_selectedDate != null && _tasks.TryGetValue(_selectedDate.Value.Date, out var tasks))
+            if (_selectedDate != null)
             {
-                foreach (var task in tasks)
-                    TaskList.Items.Add(task);
+                var tasksForDate = _context.Tasks
+                    .Where(t => t.Date.Date == _selectedDate.Value.Date)
+                    .ToList();
+
+                foreach (var task in tasksForDate)
+                {
+                    TaskList.Items.Add(new ListBoxItem { Content = task.Description, Tag = task.Id });
+                }
             }
         }
 
@@ -171,12 +182,26 @@ namespace Kalendarz
                 return;
 
             var taskText = TaskInput.Text.Trim();
-            if (!_tasks.ContainsKey(_selectedDate.Value.Date))
-                _tasks[_selectedDate.Value.Date] = new List<string>();
 
-            _tasks[_selectedDate.Value.Date].Add(taskText);
+            var newTask = new TaskItem
+            {
+                Date = _selectedDate.Value.Date,
+                Description = taskText
+            };
+
+            try
+            {
+                _context.Tasks.Add(newTask);
+                _context.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Błąd zapisu zadania: " + ex.Message);
+            }
+
             TaskInput.Clear();
             LoadTasks();
+            GenerateCalendar(_currentDate);
         }
 
         private void DeleteTask_Click(object sender, RoutedEventArgs e)
@@ -184,13 +209,20 @@ namespace Kalendarz
             if (_selectedDate == null || TaskList.SelectedItem == null)
                 return;
 
-            string selectedTask = TaskList.SelectedItem.ToString();
+            var selectedItem = TaskList.SelectedItem as ListBoxItem;
+            if (selectedItem == null) return;
 
-            if (_tasks.TryGetValue(_selectedDate.Value.Date, out var tasks))
+            int taskId = (int)selectedItem.Tag;
+
+            var taskToDelete = _context.Tasks.Find(taskId);
+            if (taskToDelete != null)
             {
-                tasks.Remove(selectedTask);
-                LoadTasks();
+                _context.Tasks.Remove(taskToDelete);
+                _context.SaveChanges();
             }
+
+            LoadTasks();
+            GenerateCalendar(_currentDate);
         }
 
         private void PreviousMonth_Click(object sender, RoutedEventArgs e)
@@ -206,7 +238,7 @@ namespace Kalendarz
         }
         private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
-            TaskStorage.Save(_tasks);
+            _context.Dispose();
         }
         private async void LoadWeather(string city)
         {

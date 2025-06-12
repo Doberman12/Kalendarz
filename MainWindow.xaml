@@ -1,0 +1,48 @@
+﻿<Window x:Class="Kalendarz.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Kalendarz" Height="600" Width="900" MinWidth="800" MinHeight="500">
+
+    <DockPanel Margin="10">
+        <!-- Pasek u góry: Miasto + Pogoda -->
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="0,0,0,10" HorizontalAlignment="Left" VerticalAlignment="Center">
+            <TextBlock Text="Miasto:" VerticalAlignment="Center" Margin="0,0,5,0" FontWeight="Bold"/>
+            <TextBox x:Name="CityInput" Width="150" Height="28" Text="Warszawa" Margin="0,0,10,0"/>
+            <Button Content="Pobierz pogodę" Width="120" Height="28" Click="LoadWeather_Click"/>
+            <TextBlock x:Name="WeatherText" Margin="15,0,0,0" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="14"/>
+        </StackPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
+            <Button Content="◀" Width="35" Height="35" Click="PreviousMonth_Click"/>
+            <TextBlock x:Name="MonthYearText" FontSize="24" FontWeight="Bold" Margin="20,0" VerticalAlignment="Center" />
+            <Button Content="▶" Width="35" Height="35" Click="NextMonth_Click"/>
+        </StackPanel>
+        <!-- Główna zawartość: kalendarz i lista zadań -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="1.2*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Kalendarz po lewej -->
+            <Border Grid.Column="0" BorderBrush="LightGray" BorderThickness="1" Padding="10" CornerRadius="5" Background="#FFF9F9F9" Margin="0,0,10,0">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <Grid x:Name="CalendarGrid" />
+                </ScrollViewer>
+            </Border>
+
+            <!-- Lista zadań po prawej -->
+            <Border Grid.Column="1" BorderBrush="LightGray" BorderThickness="1" Padding="10" CornerRadius="5" Background="#FFF9F9F9">
+                <StackPanel>
+                    <TextBlock Text="Zadania na:" FontWeight="Bold" FontSize="16" Margin="0,0,0,8"/>
+                    <TextBlock x:Name="SelectedDateText" FontSize="14" Margin="0,0,0,10"/>
+                    <ListBox x:Name="TaskList" Height="300" />
+                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                        <TextBox x:Name="TaskInput" Width="150" Margin="0,0,10,0"/>
+                        <Button Content="Dodaj" Width="60" Click="AddTask_Click"/>
+                    </StackPanel>
+                    <Button Content="Usuń zaznaczone" Click="DeleteTask_Click" Margin="0,10,0,0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </DockPanel>
+</Window>

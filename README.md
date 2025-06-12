@@ -8,7 +8,7 @@ Prosty kalendarz desktopowy w technologii **WinForms (.NET)** umożliwiający za
 
 - Wyświetlanie kalendarza z możliwością wyboru dnia
 - Dodawanie i usuwanie zadań przypisanych do konkretnych dat
-- Trwałe przechowywanie wydarzeń w bazie danych
+- Trwałe przechowywanie zadań w bazie danych
 - Pobieranie aktualnej pogody dla wybranego miasta
 - Wyświetlanie znacznika (zielona kropka) przy dniach, na które są zaplanowane zadania
 ---

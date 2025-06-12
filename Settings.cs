@@ -3,6 +3,9 @@ using System.Text.Json;
 
 namespace Kalendarz
 {
+    /// <summary>
+    /// Zapisane ustawienie miasta, potrzebne do pobrania pogody
+    /// </summary>
     public class Settings
     {
         public string City { get; set; } = "Wrocław";

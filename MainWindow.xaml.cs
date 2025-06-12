@@ -31,7 +31,7 @@ namespace Kalendarz
             _selectedDate = DateTime.Today;
             
             _currentDate = DateTime.Today;
-            
+            ///Generowanie kalendarza z zaznaczonym dniem
             GenerateCalendar(_currentDate);
             SelectedDateText.Text = DateTime.Today.ToString("d MMMM yyyy", new CultureInfo("pl-PL"));
             LoadTasks();
@@ -107,7 +107,7 @@ namespace Kalendarz
                     _todayBorder = dayBorder;
                 }
 
-                // Tekst z numerem dnia
+                /// Tekst z numerem dnia
                 var dayText = new TextBlock
                 {
                     Text = i.ToString(),
@@ -115,7 +115,7 @@ namespace Kalendarz
                     Foreground = currentDay.DayOfWeek == DayOfWeek.Sunday ? Brushes.Red : Brushes.Black
                 };
 
-                // ZNACZNIK (jeśli są zadania)
+                /// ZNACZNIK (jeśli są zadania)
                 var dayStack = new StackPanel
                 {
                     Orientation = Orientation.Vertical,
@@ -123,7 +123,7 @@ namespace Kalendarz
                     VerticalAlignment = VerticalAlignment.Center
                 };
                 dayStack.Children.Add(dayText);
-
+                ///Dodawanie znacznika dla dni z zadaniami
                 if (taskDates.Contains(currentDay.Date))
                 {
                     var dot = new Ellipse
@@ -158,7 +158,9 @@ namespace Kalendarz
             }
 
         }
-
+        /// <summary>
+        /// Wczytywanie zadan z bazy danych
+        /// </summary>
         private void LoadTasks()
         {
             TaskList.Items.Clear();
@@ -175,7 +177,11 @@ namespace Kalendarz
                 }
             }
         }
-
+        /// <summary>
+        /// Dodawanie zadan do bazy danych
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void AddTask_Click(object sender, RoutedEventArgs e)
         {
             if (_selectedDate == null || string.IsNullOrWhiteSpace(TaskInput.Text))
@@ -203,7 +209,11 @@ namespace Kalendarz
             LoadTasks();
             GenerateCalendar(_currentDate);
         }
-
+        /// <summary>
+        /// Usuwanie zadan z bazy danych
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void DeleteTask_Click(object sender, RoutedEventArgs e)
         {
             if (_selectedDate == null || TaskList.SelectedItem == null)
@@ -271,7 +281,7 @@ namespace Kalendarz
             SelectedDateText.Text = day.ToString("d MMMM yyyy", new CultureInfo("pl-PL"));
             LoadTasks();
 
-            // Resetowanie poprzedniego zaznaczenia
+            /// Resetowanie poprzedniego zaznaczenia
             if (_currentlySelectedBorder != null)
             {
                 
@@ -285,7 +295,7 @@ namespace Kalendarz
                 }
             }
 
-            // Zaznaczenie nowego
+            /// Zaznaczenie nowego
             border.Background = Brushes.LightGray;
             _currentlySelectedBorder = border;
         }

@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 
 namespace Kalendarz
 {
+    /// <summary>
+    /// Połaczenie z API od pogody
+    /// </summary>
     public class WeatherData
     {
         public Main main { get; set; }
